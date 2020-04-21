@@ -1,9 +1,11 @@
 class UserController {
 
-  constructor(formId, tableId) {
+  constructor(formId, tableId, btnSubmit) {
 
     this.formEl = document.getElementById(formId)
     this.tableEl = document.getElementById(tableId)
+
+    this.btnSubmit = document.querySelector(btnSubmit)
 
     this.onSubmit()
 
@@ -15,13 +17,19 @@ class UserController {
 
       event.preventDefault()
 
+      this.btnSubmit.disabled = true;
+
       let values = this.getValues()
 
       this.getPhoto().then((content) => {
-        
+
         values.photo = content
 
         this.addLine(values)
+
+        this.formEl.reset()
+
+        this.btnSubmit.disabled = false
 
       }, (e) => {
 
@@ -46,7 +54,7 @@ class UserController {
           return item
 
         }
-        
+
       })
 
       let file = elements[0].files[0]
@@ -63,7 +71,15 @@ class UserController {
 
       }
 
-      fileReader.readAsDataURL(file)
+      if (file) {
+
+        fileReader.readAsDataURL(file)
+
+      } else {
+
+        resolve('dist/img/boxed-bg.jpg')
+
+      }
 
     })
 
@@ -82,6 +98,10 @@ class UserController {
           user[field.name] = field.value
 
         }
+
+      } else if (field.name == 'admin') {
+
+        user[field.name] = field.checked
 
       } else {
 
@@ -106,22 +126,21 @@ class UserController {
 
   addLine(dataUser) {
 
-    console.log(dataUser)
+    let tr = document.createElement('tr')
 
-    this.tableEl.innerHTML = `
-    <tr>
+    tr.innerHTML = `
       <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
       <td>${dataUser.name}</td>
       <td>${dataUser.email}</td>
-      <td>${dataUser.admin}</td>
-      <td>${dataUser.birth}</td>
+      <td>${(dataUser.admin ? 'Sim' : 'Não')}</td>
+      <td>${Utils.dateFormat(dataUser.register)}</td>
       <td>
         <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
         <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
       </td>
-    </tr>
-  `
+    `
 
+    this.tableEl.appendChild(tr)
   }
 
 }
