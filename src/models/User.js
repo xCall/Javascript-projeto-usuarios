@@ -59,7 +59,7 @@ class User {
 
   get admin() {
 
-    return this._photo
+    return this._admin
 
   }
 
